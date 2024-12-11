@@ -1,6 +1,6 @@
 # domain/exceptions/validation_error.py
 from typing import Optional, Dict, Any, List
-from .base_exception import DomainError
+from domain.exceptions.base_exception import DomainError
 
 class ValidationError(DomainError):
     """Base class for validation-related errors."""

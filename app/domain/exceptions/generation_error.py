@@ -1,6 +1,6 @@
 # domain/exceptions/generation_error.py
 from typing import Optional, Dict, Any, List
-from .base_exception import DomainError
+from domain.exceptions.base_exception import DomainError
 
 class GenerationError(DomainError):
     """Base class for text generation-related errors."""

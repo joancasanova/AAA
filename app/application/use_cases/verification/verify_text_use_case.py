@@ -2,10 +2,9 @@
 from typing import List, Optional
 from dataclasses import dataclass
 from datetime import datetime
-from ....domain.model.entities.verification import VerificationMethod, VerificationSummary
-from ....domain.services.verifier_service import VerifierService
-from ....domain.ports.logger_port import LoggerPort
-from ....domain.exceptions.verification_error import InvalidVerificationMethod, VerificationExecutionError
+from domain.model.entities.verification import VerificationMethod, VerificationSummary
+from domain.services.verifier_service import VerifierService
+from domain.exceptions.verification_error import InvalidVerificationMethod, VerificationExecutionError
 
 @dataclass
 class VerifyTextRequest:
@@ -22,9 +21,8 @@ class VerifyTextResponse:
     success_rate: float
 
 class VerifyTextUseCase:
-    def __init__(self, verifier_service: VerifierService, logger: LoggerPort):
+    def __init__(self, verifier_service: VerifierService):
         self.verifier_service = verifier_service
-        self.logger = logger
 
     def execute(self, request: VerifyTextRequest) -> VerifyTextResponse:
         self._validate_request(request)
@@ -42,16 +40,6 @@ class VerifyTextUseCase:
             execution_time = (datetime.now() - start_time).total_seconds()
             success_rate = verification_summary.success_rate
             
-            self.logger.log(
-                level="INFO",
-                message="Text verification completed",
-                context={
-                    "success_rate": success_rate,
-                    "execution_time": execution_time,
-                    "user_context": request.context
-                }
-            )
-            
             return VerifyTextResponse(
                 verification_summary=verification_summary,
                 execution_time=execution_time,
@@ -59,12 +47,7 @@ class VerifyTextUseCase:
             )
             
         except Exception as e:
-            self.logger.log(
-                level="ERROR",
-                message=f"Verification failed: {str(e)}",
-                context={"methods": [m.name for m in request.methods]}
-            )
-            raise
+            raise e
 
     def _validate_request(self, request: VerifyTextRequest) -> None:
         if not request.text.strip():

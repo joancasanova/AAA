@@ -1,15 +1,12 @@
 # domain/services/parse_service.py
 from typing import List, Dict, Optional, Tuple
 import re
-import logging
-from ..model.entities.parsing import (
+from domain.model.entities.parsing import (
     ParseRule, ParseEntry, ParsedDocument, ParseMode, 
     ParseScope, ParseStrategy
 )
-from ..model.value_objects.parse_result import ParseResult, ParseMatch, ParseMetrics, ParseLocation
+from domain.model.value_objects.parse_result import ParseResult, ParseMatch, ParseMetrics, ParseLocation
 from datetime import datetime
-
-logger = logging.getLogger(__name__)
 
 class ParseService:
     def parse_text(self, text: str, rules: List[ParseRule]) -> ParseResult:

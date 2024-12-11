@@ -17,9 +17,6 @@ black>=23.10.0
 isort>=5.12.0
 mypy>=1.7.0
 
-# Logging and monitoring
-loguru>=0.7.2
-
 # Type checking
 types-requests>=2.31.0.10
 types-PyYAML>=6.0.12.12

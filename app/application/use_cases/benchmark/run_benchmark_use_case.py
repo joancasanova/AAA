@@ -2,12 +2,11 @@
 from typing import List, Optional
 from datetime import datetime
 from dataclasses import dataclass
-from ....domain.model.entities.benchmark import BenchmarkConfiguration, BenchmarkEntry, BenchmarkExecution
-from ....domain.services.metrics_service import MetricsService
-from ....domain.services.verifier_service import VerifierService
-from ....domain.ports.logger_port import LoggerPort
-from ....domain.ports.repository_port import RepositoryPort
-from ....domain.exceptions.benchmark_error import BenchmarkConfigurationError
+from domain.model.entities.benchmark import BenchmarkConfiguration, BenchmarkEntry, BenchmarkExecution
+from domain.services.metrics_service import MetricsService
+from domain.services.verifier_service import VerifierService
+from domain.ports.repository_port import RepositoryPort
+from domain.exceptions.benchmark_error import BenchmarkConfigurationError
 
 @dataclass
 class RunBenchmarkRequest:
@@ -29,14 +28,10 @@ class RunBenchmarkUseCase:
     def __init__(
         self,
         verifier_service: VerifierService,
-        metrics_service: MetricsService,
-        repository: RepositoryPort,
-        logger: LoggerPort
+        metrics_service: MetricsService
     ):
         self.verifier_service = verifier_service
         self.metrics_service = metrics_service
-        self.repository = repository
-        self.logger = logger
 
     def execute(self, request: RunBenchmarkRequest) -> RunBenchmarkResponse:
         self._validate_request(request)
@@ -65,13 +60,8 @@ class RunBenchmarkUseCase:
                 verification_results.append(verification_summary)
                 
             except Exception as e:
-                failed_entries += 1
-                self.logger.log(
-                    level="ERROR",
-                    message=f"Error processing benchmark entry: {str(e)}",
-                    context={"execution_id": execution_id, "entry_id": id(entry)}
-                )
-
+                raise e
+            
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
 
@@ -88,8 +78,6 @@ class RunBenchmarkUseCase:
                 end_time=end_time
             )
         )
-
-        self.repository.save(execution)
 
         return RunBenchmarkResponse(
             execution_id=execution_id,

@@ -2,10 +2,9 @@
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 from datetime import datetime
-from ....domain.model.entities.generation import GeneratedResult, GenerationMetadata
-from ....domain.ports.llm_port import LLMPort
-from ....domain.ports.logger_port import LoggerPort
-from ....domain.exceptions.generation_error import InvalidPromptError, GenerationLimitExceeded
+from domain.model.entities.generation import GeneratedResult, GenerationMetadata
+from domain.ports.llm_port import LLMPort
+from domain.exceptions.generation_error import InvalidPromptError, GenerationLimitExceeded
 
 @dataclass
 class GenerateTextRequest:
@@ -24,9 +23,8 @@ class GenerateTextResponse:
     model_name: str
 
 class GenerateTextUseCase:
-    def __init__(self, llm: LLMPort, logger: LoggerPort):
+    def __init__(self, llm: LLMPort):
         self.llm = llm
-        self.logger = logger
         self.MAX_SEQUENCES = 10
         self.MAX_TOKENS = 1000
 
@@ -55,15 +53,7 @@ class GenerateTextUseCase:
             )
             
         except Exception as e:
-            self.logger.log(
-                level="ERROR",
-                message=f"Text generation failed: {str(e)}",
-                context={
-                    "num_sequences": request.num_sequences,
-                    "max_tokens": request.max_tokens
-                }
-            )
-            raise
+            raise e
 
     def _validate_request(self, request: GenerateTextRequest) -> None:
         if not request.system_prompt.strip():

@@ -2,14 +2,13 @@
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime
-from ....domain.ports.logger_port import LoggerPort
-from ....application.interfaces.pipeline_orchestrator import (
+from application.interfaces.pipeline_orchestrator import (
     PipelineConfig, PipelineResult, PipelineStageType, StageResult
 )
-from ....application.use_cases.generation.generate_text_use_case import GenerateTextUseCase
-from ....application.use_cases.parsing.parse_generated_output_use_case import ParseGeneratedOutputUseCase
-from ....application.use_cases.verification.verify_text_use_case import VerifyTextUseCase
-from ....domain.exceptions.base_exception import DomainError
+from application.use_cases.generation.generate_text_use_case import GenerateTextUseCase
+from application.use_cases.parsing.parse_generated_output_use_case import ParseGeneratedOutputUseCase
+from application.use_cases.verification.verify_text_use_case import VerifyTextUseCase
+from domain.exceptions.base_exception import DomainError
 
 @dataclass
 class ExecutePipelineRequest:
@@ -30,13 +29,11 @@ class ExecutePipelineUseCase:
         self,
         generate_use_case: GenerateTextUseCase,
         parse_use_case: ParseGeneratedOutputUseCase,
-        verify_use_case: VerifyTextUseCase,
-        logger: LoggerPort
+        verify_use_case: VerifyTextUseCase
     ):
         self.generate_use_case = generate_use_case
         self.parse_use_case = parse_use_case
         self.verify_use_case = verify_use_case
-        self.logger = logger
 
     def execute(self, request: ExecutePipelineRequest) -> ExecutePipelineResponse:
         start_time = datetime.now()
@@ -88,16 +85,7 @@ class ExecutePipelineUseCase:
             )
 
         except Exception as e:
-            self.logger.log(
-                level="ERROR",
-                message="Pipeline execution failed",
-                context={
-                    "error": str(e),
-                    "stages_completed": stages_completed,
-                    "stages_failed": stages_failed
-                }
-            )
-            raise
+            raise e
 
     def _execute_stage(
         self,
@@ -112,37 +100,25 @@ class ExecutePipelineUseCase:
         output_data = None
         metadata = {}
 
-        try:
-            if stage_type == PipelineStageType.GENERATE:
+        if stage_type == PipelineStageType.GENERATE:
                 output_data = self.generate_use_case.execute(
                     system_prompt=parameters.get("system_prompt", ""),
                     user_prompt=parameters.get("user_prompt", ""),
                     num_sequences=parameters.get("num_sequences", 1),
                     max_tokens=parameters.get("max_tokens", 100)
                 )
-            elif stage_type == PipelineStageType.PARSE:
+        elif stage_type == PipelineStageType.PARSE:
                 output_data = self.parse_use_case.execute(
                     text=input_data,
                     rules=parameters.get("rules", [])
                 )
-            elif stage_type == PipelineStageType.VERIFY:
+        elif stage_type == PipelineStageType.VERIFY:
                 output_data = self.verify_use_case.execute(
                     text=input_data,
                     methods=parameters.get("methods", []),
                     required_for_confirmed=parameters.get("required_for_confirmed", 1),
                     required_for_review=parameters.get("required_for_review", 0)
                 )
-
-        except Exception as e:
-            error = str(e)
-            self.logger.log(
-                level="ERROR",
-                message=f"Stage execution failed: {stage_type.value}",
-                context={
-                    "error": error,
-                    "parameters": parameters
-                }
-            )
 
         execution_time = (datetime.now() - start_time).total_seconds()
         metadata["execution_time"] = execution_time

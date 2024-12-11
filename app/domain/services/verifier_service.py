@@ -1,17 +1,15 @@
 # domain/services/verifier_service.py
 from typing import List, Dict, Optional, Callable
-import logging
 from datetime import datetime
-from ..model.entities.verification import (
+from domain.model.entities.verification import (
     VerificationMethod, VerificationMethodType, VerificationMode,
     VerificationResult, VerificationSummary
 )
-from ..model.value_objects.verification_status import VerificationStatus
-from ..model.value_objects.similarity_score import SimilarityScore
-from ..ports.embeddings_port import EmbeddingsPort
-from ..ports.llm_port import LLMPort
+from domain.model.value_objects.verification_status import VerificationStatus
+from domain.model.value_objects.similarity_score import SimilarityScore
+from domain.ports.embeddings_port import EmbeddingsPort
+from domain.ports.llm_port import LLMPort
 
-logger = logging.getLogger(__name__)
 
 class VerifierService:
     def __init__(self, embeddings: EmbeddingsPort, llm: LLMPort):

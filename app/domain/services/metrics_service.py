@@ -1,10 +1,10 @@
 # domain/services/metrics_service.py
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
-from ..model.value_objects.benchmark_metrics import (
+from domain.model.value_objects.benchmark_metrics import (
     AccuracyMetrics, PerformanceMetrics, BenchmarkMetrics
 )
-from ..model.entities.verification import VerificationSummary
+from domain.model.entities.verification import VerificationSummary
 
 class MetricsService:
     def calculate_benchmark_metrics(

@@ -1,6 +1,6 @@
 # domain/exceptions/verification_error.py
 from typing import Optional, Dict, Any, List
-from .base_exception import DomainError
+from domain.exceptions.base_exception import DomainError
 
 class VerificationError(DomainError):
     """Base class for verification-related errors."""

@@ -2,7 +2,7 @@
 from typing import List, Dict, Any
 from pydantic import BaseModel, Field
 from datetime import datetime
-from ....domain.model.entities.generation import GeneratedResult
+from domain.model.entities.generation import GeneratedResult
 
 class GenerationMetadataResponse(BaseModel):
     model_name: str

@@ -2,11 +2,10 @@
 from typing import List, Optional
 from dataclasses import dataclass
 from datetime import datetime
-from ....domain.model.entities.parsing import ParseRule, ParsedDocument
-from ....domain.model.value_objects.parse_result import ParseResult
-from ....domain.services.parse_service import ParseService
-from ....domain.ports.logger_port import LoggerPort
-from ....domain.exceptions.parsing_error import InvalidParseRule, ParseExecutionError
+from domain.model.entities.parsing import ParseRule, ParsedDocument
+from domain.model.value_objects.parse_result import ParseResult
+from domain.services.parse_service import ParseService
+from domain.exceptions.parsing_error import InvalidParseRule, ParseExecutionError
 
 @dataclass
 class ParseGeneratedOutputRequest:
@@ -23,9 +22,8 @@ class ParseGeneratedOutputResponse:
     failed_rules: List[str]
 
 class ParseGeneratedOutputUseCase:
-    def __init__(self, parse_service: ParseService, logger: LoggerPort):
+    def __init__(self, parse_service: ParseService):
         self.parse_service = parse_service
-        self.logger = logger
 
     def execute(self, request: ParseGeneratedOutputRequest) -> ParseGeneratedOutputResponse:
         self._validate_request(request)
@@ -60,12 +58,7 @@ class ParseGeneratedOutputUseCase:
             )
             
         except Exception as e:
-            self.logger.log(
-                level="ERROR",
-                message=f"Parsing failed: {str(e)}",
-                context={"rules": [rule.name for rule in request.rules]}
-            )
-            raise
+            raise e
 
     def _validate_request(self, request: ParseGeneratedOutputRequest) -> None:
         if not request.text.strip():

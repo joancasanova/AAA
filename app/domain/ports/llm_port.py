@@ -1,7 +1,7 @@
 # domain/ports/llm_port.py
 from abc import ABC, abstractmethod
 from typing import List, Optional, Dict
-from ..model.entities.generation import GeneratedResult
+from domain.model.entities.generation import GeneratedResult
 
 class LLMPort(ABC):
     @abstractmethod

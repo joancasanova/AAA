@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Dict
 from datetime import datetime
 from pydantic import BaseModel, Field, validator
-from ....domain.model.entities.verification import VerificationMethod
+from domain.model.entities.verification import VerificationMethod
 
 class BenchmarkEntryRequest(BaseModel):
     input_text: str = Field(..., min_length=1)

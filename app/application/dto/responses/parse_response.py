@@ -2,7 +2,7 @@
 from typing import List, Dict, Any
 from pydantic import BaseModel, Field
 from datetime import datetime
-from ....domain.model.value_objects.parse_result import ParseMatch, ParseMetrics
+from domain.model.value_objects.parse_result import ParseMatch, ParseMetrics
 
 class ParseLocationResponse(BaseModel):
     start: int

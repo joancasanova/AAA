@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 from pydantic import BaseModel, Field, validator
-from ....domain.model.entities.parsing import ParseMode, ParseScope, ParseStrategy
+from domain.model.entities.parsing import ParseMode, ParseScope, ParseStrategy
 
 class ParseRuleRequest(BaseModel):
     name: str = Field(..., min_length=1)

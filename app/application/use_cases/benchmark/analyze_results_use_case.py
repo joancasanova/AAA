@@ -2,10 +2,9 @@
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime
-from ....domain.model.entities.benchmark import BenchmarkResult
-from ....domain.services.metrics_service import MetricsService
-from ....domain.ports.logger_port import LoggerPort
-from ....domain.ports.repository_port import RepositoryPort
+from domain.model.entities.benchmark import BenchmarkResult
+from domain.services.metrics_service import MetricsService
+from domain.ports.repository_port import RepositoryPort
 
 @dataclass
 class AnalyzeResultsRequest:
@@ -35,12 +34,10 @@ class AnalyzeResultsUseCase:
     def __init__(
         self,
         metrics_service: MetricsService,
-        repository: RepositoryPort,
-        logger: LoggerPort
+        repository: RepositoryPort
     ):
         self.metrics_service = metrics_service
         self.repository = repository
-        self.logger = logger
 
     def execute(self, request: AnalyzeResultsRequest) -> AnalyzeResultsResponse:
         start_time = datetime.now()
@@ -90,15 +87,7 @@ class AnalyzeResultsUseCase:
             )
 
         except Exception as e:
-            self.logger.log(
-                level="ERROR",
-                message="Benchmark analysis failed",
-                context={
-                    "benchmark_id": request.benchmark_id,
-                    "error": str(e)
-                }
-            )
-            raise
+            raise e
 
     def _analyze_metric(
         self,

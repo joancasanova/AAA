@@ -1,6 +1,6 @@
 # domain/exceptions/benchmark_error.py
 from typing import Optional, Dict, Any, List
-from .base_exception import DomainError
+from domain.exceptions.base_exception import DomainError
 
 class BenchmarkError(DomainError):
     """Base class for benchmark-related errors."""

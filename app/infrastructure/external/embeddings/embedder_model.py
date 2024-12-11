@@ -4,31 +4,24 @@ from datetime import datetime
 import torch
 import torch.nn.functional as F
 from transformers import AutoModel, AutoTokenizer
-import logging
-from ....domain.ports.embeddings_port import EmbeddingsPort
-from ....domain.model.value_objects.similarity_score import SimilarityScore
-
-logger = logging.getLogger(__name__)
+from domain.ports.embeddings_port import EmbeddingsPort
+from domain.model.value_objects.similarity_score import SimilarityScore
 
 class EmbedderModel(EmbeddingsPort):
     def __init__(
         self,
         model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
-        device: Optional[str] = None,
-        cache_dir: Optional[str] = None
+        device: Optional[str] = None
     ):
         self.model_name = model_name
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        self.cache_dir = cache_dir
         
-        logger.info(f"Initializing EmbedderModel with {model_name} on {self.device}")
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-            self.model = AutoModel.from_pretrained(model_name, cache_dir=cache_dir)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.model = AutoModel.from_pretrained(model_name)
             self.model.to(self.device)
         except Exception as e:
-            logger.error(f"Error initializing embedder model: {str(e)}")
-            raise
+            raise e
 
     def get_similarity(self, text1: str, text2: str) -> SimilarityScore:
         try:
@@ -45,16 +38,14 @@ class EmbedderModel(EmbeddingsPort):
                 compared_text=text2
             )
         except Exception as e:
-            logger.error(f"Error calculating similarity: {str(e)}")
-            raise
+            raise e
 
     def get_embedding(self, text: str) -> List[float]:
         try:
             embedding = self._get_embedding(text)
             return embedding.squeeze().tolist()
         except Exception as e:
-            logger.error(f"Error getting embedding: {str(e)}")
-            raise
+            raise e
 
     def batch_similarities(
         self,
@@ -90,8 +81,7 @@ class EmbedderModel(EmbeddingsPort):
             
             return similarities
         except Exception as e:
-            logger.error(f"Error calculating batch similarities: {str(e)}")
-            raise
+            raise e
 
     def _get_embedding(self, text: str) -> torch.Tensor:
         # Tokenize and prepare input

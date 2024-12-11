@@ -2,8 +2,8 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 from datetime import datetime
-from ..entities.benchmark import BenchmarkExecution, BenchmarkConfiguration
-from ..value_objects.benchmark_metrics import BenchmarkMetrics
+from entities.benchmark import BenchmarkExecution, BenchmarkConfiguration
+from domain.model.value_objects.benchmark_metrics import BenchmarkMetrics
 
 @dataclass(frozen=True)
 class BenchmarkResult:

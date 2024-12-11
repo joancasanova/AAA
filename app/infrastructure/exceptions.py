@@ -1,6 +1,6 @@
 # infrastructure/exceptions.py
 from typing import Optional, Dict, Any
-from ..domain.exceptions.base_exception import DomainError
+from domain.exceptions.base_exception import DomainError
 
 class InfrastructureError(DomainError):
     """Base class for infrastructure layer exceptions."""
@@ -115,52 +115,7 @@ class ModelExecutionError(ExternalServiceError):
             code="MODEL_EXECUTION_ERROR",
             details=details
         )
-
-# Cache Exceptions
-class CacheError(InfrastructureError):
-    """Base class for cache-related exceptions."""
-    def __init__(
-        self,
-        message: str,
-        code: str = "CACHE_ERROR",
-        details: Optional[Dict[str, Any]] = None
-    ):
-        super().__init__(message, code, details)
-
-class CacheConnectionError(CacheError):
-    def __init__(
-        self,
-        host: str,
-        port: int,
-        original_error: Optional[Exception] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        message = f"Failed to connect to cache at {host}:{port}"
-        if original_error:
-            message += f" - {str(original_error)}"
-        super().__init__(
-            message=message,
-            code="CACHE_CONNECTION_ERROR",
-            details=details
-        )
-
-class CacheOperationError(CacheError):
-    def __init__(
-        self,
-        operation: str,
-        key: str,
-        original_error: Optional[Exception] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        message = f"Cache operation '{operation}' failed for key '{key}'"
-        if original_error:
-            message += f" - {str(original_error)}"
-        super().__init__(
-            message=message,
-            code="CACHE_OPERATION_ERROR",
-            details=details
-        )
-
+        
 # Configuration Exceptions
 class ConfigurationError(InfrastructureError):
     """Base class for configuration-related exceptions."""

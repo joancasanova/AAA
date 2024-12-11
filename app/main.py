@@ -1,5 +1,4 @@
 import argparse
-import logging
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any
@@ -7,7 +6,6 @@ from dataclasses import asdict
 
 from infrastructure.external.llm.instruct_model import InstructModel
 from infrastructure.external.embeddings.embedder_model import EmbedderModel
-from infrastructure.external.model_cache import *
 
 from application.use_cases.generation.generate_text_use_case import (
     GenerateTextUseCase,
@@ -45,12 +43,6 @@ from domain.services.parse_service import ParseService
 from domain.services.verifier_service import VerifierService
 from domain.services.metrics_service import MetricsService
 
-
-class Logger:
-    def log(self, level: str, message: str, context: Optional[Dict[str, Any]] = None):
-        logging.log(getattr(logging, level), f"{message} {context or ''}")
-
-
 def load_json_file(file_path: str) -> Dict[str, Any]:
     with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -60,21 +52,10 @@ def save_json_file(data: Dict[str, Any], file_path: str):
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-
-def setup_logging(debug: bool):
-    level = logging.DEBUG if debug else logging.INFO
-    logging.basicConfig(
-        level=level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-
-
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Text Processing Pipeline")
 
     # Global arguments
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-    parser.add_argument("--output", type=str, help="Output file path")
-
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Generate command
@@ -140,12 +121,7 @@ def main():
         parser.print_help()
         return
 
-    setup_logging(args.debug)
-    logger = Logger()
-    settings = Settings()
-
     # Initialize services
-    model_cache = ModelCache(cache_dir="model_cache")
     llm = InstructModel()
     embedder = EmbedderModel()
 
@@ -154,13 +130,13 @@ def main():
     metrics_service = MetricsService()
 
     # Initialize use cases
-    generate_use_case = GenerateTextUseCase(llm, logger)
-    parse_use_case = ParseGeneratedOutputUseCase(parse_service, logger)
-    verify_use_case = VerifyTextUseCase(verifier_service, logger)
+    generate_use_case = GenerateTextUseCase(llm)
+    parse_use_case = ParseGeneratedOutputUseCase(parse_service)
+    verify_use_case = VerifyTextUseCase(verifier_service)
     pipeline_use_case = ExecutePipelineUseCase(
-        generate_use_case, parse_use_case, verify_use_case, logger
+        generate_use_case, parse_use_case, verify_use_case
     )
-    benchmark_use_case = RunBenchmarkUseCase(verifier_service, metrics_service, logger)
+    benchmark_use_case = RunBenchmarkUseCase(verifier_service, metrics_service)
 
     try:
         result = None
@@ -205,14 +181,10 @@ def main():
 
         # Save or print results
         if result:
-            if args.output:
-                save_json_file(asdict(result), args.output)
-            else:
-                print(json.dumps(asdict(result), indent=2, ensure_ascii=False))
+            print(result)
 
     except Exception as e:
-        logging.error(f"Error executing command: {str(e)}")
-        raise
+        raise e
 
 
 if __name__ == "__main__":

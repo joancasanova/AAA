@@ -1,7 +1,7 @@
 # domain/ports/embeddings_port.py
 from abc import ABC, abstractmethod
 from typing import List
-from ..model.value_objects.similarity_score import SimilarityScore
+from domain.model.value_objects.similarity_score import SimilarityScore
 
 class EmbeddingsPort(ABC):
     @abstractmethod

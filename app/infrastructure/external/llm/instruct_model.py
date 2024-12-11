@@ -2,36 +2,27 @@
 from typing import List, Optional, Dict
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import logging
 import re
 from datetime import datetime
-from ....domain.ports.llm_port import LLMPort
-from ....domain.model.entities.generation import GeneratedResult, GenerationMetadata
-
-logger = logging.getLogger(__name__)
+from domain.ports.llm_port import LLMPort
+from domain.model.entities.generation import GeneratedResult, GenerationMetadata
 
 class InstructModel(LLMPort):
     def __init__(
         self,
         model_name: str = "EleutherAI/gpt-neo-125M",
-        device: Optional[str] = None,
-        cache_dir: Optional[str] = None,
-        max_length: int = 2048
+        device: Optional[str] = None
     ):
         self.model_name = model_name
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
-        self.cache_dir = cache_dir
-        self.max_length = max_length
         self.instruct_mode = "instruct" in model_name.lower()
         
-        logger.info(f"Initializing InstructModel with {model_name} on {self.device}")
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
-            self.model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(model_name)
             self.model.to(self.device)
         except Exception as e:
-            logger.error(f"Error initializing LLM model: {str(e)}")
-            raise
+            raise e
 
     def generate(
         self,
@@ -62,10 +53,7 @@ class InstructModel(LLMPort):
             # Tokenize input
             inputs = self.tokenizer(
                 [prompt],
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=self.max_length - max_tokens
+                return_tensors="pt"
             ).to(self.device)
 
             # Generate responses
@@ -75,8 +63,7 @@ class InstructModel(LLMPort):
                 num_return_sequences=num_sequences,
                 do_sample=True,
                 temperature=temperature,
-                pad_token_id=self.tokenizer.eos_token_id,
-                attention_mask=inputs['attention_mask']
+                pad_token_id=self.tokenizer.eos_token_id
             )
 
             # Decode outputs
@@ -111,15 +98,13 @@ class InstructModel(LLMPort):
             return results
 
         except Exception as e:
-            logger.error(f"Error generating text: {str(e)}")
-            raise
+            raise e
 
     def get_token_count(self, text: str) -> int:
         try:
             return len(self.tokenizer.encode(text))
         except Exception as e:
-            logger.error(f"Error counting tokens: {str(e)}")
-            raise
+            raise e
 
     def _extract_assistant_response(self, text: str) -> str:
         # Extract content after "assistant" or "Assistant:"

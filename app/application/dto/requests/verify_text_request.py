@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field, validator
-from ....domain.model.entities.verification import VerificationMethodType, VerificationMode
+from domain.model.entities.verification import VerificationMethodType, VerificationMode
 
 class VerificationMethodRequest(BaseModel):
     name: str = Field(..., min_length=1)

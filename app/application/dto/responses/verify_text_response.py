@@ -2,7 +2,7 @@
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
-from ....domain.model.entities.verification import VerificationMethodType, VerificationMode
+from domain.model.entities.verification import VerificationMethodType, VerificationMode
 
 class VerificationResultResponse(BaseModel):
     method_name: str
